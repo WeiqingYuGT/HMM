@@ -4,6 +4,8 @@ Created on Nov 13, 2012
 @author: GuyZ
 '''
 
+import os
+os.chdir('/Users/weiqing.yu@groundtruth.com/weiqing/ard/data/')
 from hmm.continuous.GMHMM import GMHMM
 from hmm.discrete.DiscreteHMM import DiscreteHMM
 import numpy
@@ -47,8 +49,8 @@ def test_simple():
     
 def test_rand():
     n = 5
-    m = 4
-    d = 2
+    m = 1
+    d = 5
     atmp = numpy.random.random_sample((n, n))
     row_sums = atmp.sum(axis=1)
     a = numpy.array(atmp / row_sums[:, numpy.newaxis], dtype=numpy.double)    

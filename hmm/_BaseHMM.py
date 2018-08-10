@@ -145,7 +145,10 @@ class _BaseHMM(object):
         # path backtracing
 #        path = numpy.zeros((len(observations)),dtype=self.precision) ### 2012-11-17 - BUG FIX: wrong reinitialization destroyed the last state in the path
         for i in xrange(1, len(observations)):
-            path[len(observations)-i-1] = psi[len(observations)-i][ path[len(observations)-i] ]
+            try:
+                path[len(observations)-i-1] = psi[len(observations)-i][int(path[len(observations)-i])]
+            except:
+                raise Exception(path[len(observations)-i],type(path[len(observations)-i]))
         return path
      
     def _calcxi(self,observations,alpha=None,beta=None):

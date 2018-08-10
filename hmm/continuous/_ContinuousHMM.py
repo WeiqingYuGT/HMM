@@ -101,8 +101,11 @@ class _ContinuousHMM(_BaseHMM):
         '''
         bjt = 0
         for m in xrange(self.m):
+#            try:
             self.Bmix_map[j][m][t] = self._pdf(Ot, self.means[j][m], self.covars[j][m])
             bjt += (self.w[j][m]*self.Bmix_map[j][m][t])
+#            except:
+#                raise Exception(j,m,t,Ot)
         return bjt
         
     def _calcgammamix(self,alpha,beta,observations):
@@ -128,7 +131,7 @@ class _ContinuousHMM(_BaseHMM):
                     comp2 = (self.w[j][m]*self.Bmix_map[j][m][t])/bjk_sum
                     
                     gamma_mix[t][j][m] = comp1*comp2
-        
+        gamma_mix = numpy.where(numpy.isnan(gamma_mix),1e-200,gamma_mix)
         return gamma_mix
     
     def _updatemodel(self,new_model):
@@ -182,12 +185,15 @@ class _ContinuousHMM(_BaseHMM):
         for j in xrange(self.n):
             for m in xrange(self.m):
                 numer = 0.0
-                denom = 0.0                
+                denom = 0.0
                 for t in xrange(len(observations)):
                     for k in xrange(self.m):
                         denom += (self._eta(t,len(observations)-1)*gamma_mix[t][j][k])
                     numer += (self._eta(t,len(observations)-1)*gamma_mix[t][j][m])
-                w_new[j][m] = numer/denom
+                if denom == 0:
+                    w_new[j][m] = 1.0/self.m
+                else:
+                    w_new[j][m] = numer/denom
             w_new[j] = self._normalize(w_new[j])
                 
         for j in xrange(self.n):
@@ -198,6 +204,9 @@ class _ContinuousHMM(_BaseHMM):
                     numer += (self._eta(t,len(observations)-1)*gamma_mix[t][j][m]*observations[t])
                     denom += (self._eta(t,len(observations)-1)*gamma_mix[t][j][m])
                 means_new[j][m] = numer/denom
+                means_new = numpy.where(numpy.isinf(means_new)|numpy.isnan(means_new)\
+                                        ,numpy.mean(observations,axis=0),means_new)
+#                means_new[numpy.isinf(means_new)] = numpy.mean(observations,axis=0)[numpy.isinf(means_new)]
                 
         cov_prior = [[ numpy.matrix(self.min_std*numpy.eye((self.d), dtype=self.precision)) for j in xrange(self.m)] for i in xrange(self.n)]
         for j in xrange(self.n):

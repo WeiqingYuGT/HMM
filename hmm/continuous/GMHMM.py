@@ -6,6 +6,7 @@ Created on Nov 12, 2012
 
 from _ContinuousHMM import _ContinuousHMM
 import numpy
+from scipy.stats import multivariate_normal
 
 class GMHMM(_ContinuousHMM):
     '''
@@ -25,8 +26,9 @@ class GMHMM(_ContinuousHMM):
         '''
         Gaussian PDF function
         '''        
-        covar_det = numpy.linalg.det(covar);
-        
-        c = (1 / ( (2.0*numpy.pi)**(float(self.d/2.0)) * (covar_det)**(0.5)))
-        pdfval = c * numpy.exp(-0.5 * numpy.dot( numpy.dot((x-mean),covar.I), (x-mean)) )
+#        covar_det = numpy.linalg.det(covar);
+#        
+#        c = ( ( (2.0*numpy.pi)**(-float(self.d)/2) * (covar_det)**(-0.5)))
+#        pdfval = c * numpy.exp(-0.5 * numpy.dot( numpy.dot((x-mean),covar.I), (x-mean)))
+        pdfval = multivariate_normal.pdf(x,mean = mean, cov=covar)
         return pdfval
